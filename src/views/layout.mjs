@@ -1,7 +1,7 @@
 import { escapeHtml } from "../markdown.mjs";
 import { t, getLocale } from "../i18n.mjs";
 
-export function layout(title, body) {
+export function layout(title, body, page = "home") {
   return `<!DOCTYPE html>
 <html lang="${getLocale() === 'zh' ? 'zh-CN' : 'en'}">
 <head>
@@ -12,7 +12,7 @@ export function layout(title, body) {
    <link rel="stylesheet" href="/static/style.css">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css">
 </head>
-<body>
+<body data-page="${page}">
   <nav class="topbar">
     <a href="/" class="logo">${t("nav.title")}</a>
     <a href="/stats" class="nav-link">${t("nav.stats")}</a>

@@ -690,6 +690,14 @@ mark {
 }
 .nav-link:hover { background: var(--bg-secondary); color: var(--text-primary); }
 
+/* Nav active state */
+[data-page="stats"] .nav-link[href="/stats"],
+[data-page="trash"] .nav-link[href="/trash"] {
+  color: var(--accent-color);
+  font-weight: 600;
+  background-color: var(--bg-tertiary);
+}
+
 /* Time Range Filter */
 .range-filter {
   display: flex;

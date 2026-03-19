@@ -56,5 +56,5 @@ export function renderSessionsPage({ sessions = [], total = 0, limit = 30, offse
     ${pagination(total, limit, offset, pagerBase)}
   `;
 
-  return layout(query ? t("sessions.search_title").replace("{query}", query) : t("sessions.title"), body);
+  return layout(query ? t("sessions.search_title").replace("{query}", query) : t("sessions.title"), body, query ? "search" : "home");
 }

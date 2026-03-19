@@ -207,5 +207,5 @@ export function renderStatsPage(data) {
     </div>
   `;
   
-  return layout(t("stats.title"), content);
+  return layout(t("stats.title"), content, "stats");
 }
