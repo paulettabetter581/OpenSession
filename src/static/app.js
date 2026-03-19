@@ -10,7 +10,15 @@ const __I18N__ = {
     star_label: "☆ Star",
     star_check: "Star",
     manage: "Manage",
-    cancel_manage: "Cancel"
+    cancel_manage: "Cancel",
+    toast_starred: "Starred",
+    toast_unstarred: "Unstarred",
+    toast_renamed: "Renamed",
+    toast_deleted: "Moved to trash",
+    toast_restored: "Restored",
+    toast_permanent_deleted: "Permanently deleted",
+    toast_batch_done: "{count} sessions updated",
+    toast_error: "Operation failed"
   },
   zh: {
     rename_prompt: "输入新标题：",
@@ -22,7 +30,15 @@ const __I18N__ = {
     star_label: "☆ 收藏",
     star_check: "收藏",
     manage: "管理",
-    cancel_manage: "取消管理"
+    cancel_manage: "取消管理",
+    toast_starred: "已收藏",
+    toast_unstarred: "已取消收藏",
+    toast_renamed: "已重命名",
+    toast_deleted: "已移至回收站",
+    toast_restored: "已恢复",
+    toast_permanent_deleted: "已永久删除",
+    toast_batch_done: "已批量操作 {count} 个会话",
+    toast_error: "操作失败"
   }
 };
 
@@ -42,6 +58,31 @@ if (themeToggle) {
     localStorage.theme = next;
     updateToggleIcon();
   });
+}
+
+// Toast notifications
+function showToast(message, type = "success") {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+  const el = document.createElement("div");
+  el.className = `toast toast-${type}`;
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// Show pending toast from previous page (survives reload)
+try {
+  const pending = sessionStorage.getItem("pendingToast");
+  if (pending) {
+    sessionStorage.removeItem("pendingToast");
+    const { message, type } = JSON.parse(pending);
+    showToast(message, type);
+  }
+} catch {}
+
+function queueToast(message, type = "success") {
+  sessionStorage.setItem("pendingToast", JSON.stringify({ message, type }));
 }
 
 document.addEventListener("click", (e) => {
@@ -93,8 +134,9 @@ document.addEventListener("click", async (e) => {
     }
     const card = btn.closest(".session-card");
     if (card) card.classList.toggle("starred", data.starred);
+    showToast(data.starred ? ft("toast_starred") : ft("toast_unstarred"), data.starred ? "success" : "info");
   } catch (err) {
-    console.error("Star failed:", err);
+    showToast(ft("toast_error"), "error");
   }
 });
 
@@ -134,36 +176,56 @@ document.addEventListener("click", async (e) => {
       : document.querySelector(".session-header h1")?.textContent || "";
     const newTitle = prompt(ft("rename_prompt"), current);
     if (newTitle === null) return;
-    await fetch(`/api/session/${encodeURIComponent(id)}/rename`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: newTitle })
-    });
-    location.reload();
+    try {
+      await fetch(`/api/session/${encodeURIComponent(id)}/rename`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newTitle })
+      });
+      queueToast(ft("toast_renamed"), "success");
+      location.reload();
+    } catch {
+      showToast(ft("toast_error"), "error");
+    }
     return;
   }
 
   if (action === "delete") {
     if (!confirm(ft("delete_confirm"))) return;
-    await fetch(`/api/session/${encodeURIComponent(id)}/delete`, { method: "POST" });
-    if (document.querySelector(".session-actions")) {
-      location.href = "/";
-    } else {
-      location.reload();
+    try {
+      await fetch(`/api/session/${encodeURIComponent(id)}/delete`, { method: "POST" });
+      queueToast(ft("toast_deleted"), "success");
+      if (document.querySelector(".session-actions")) {
+        location.href = "/";
+      } else {
+        location.reload();
+      }
+    } catch {
+      showToast(ft("toast_error"), "error");
     }
     return;
   }
 
   if (action === "restore") {
-    await fetch(`/api/session/${encodeURIComponent(id)}/restore`, { method: "POST" });
-    location.reload();
+    try {
+      await fetch(`/api/session/${encodeURIComponent(id)}/restore`, { method: "POST" });
+      queueToast(ft("toast_restored"), "success");
+      location.reload();
+    } catch {
+      showToast(ft("toast_error"), "error");
+    }
     return;
   }
 
   if (action === "permanent-delete") {
     if (!confirm(ft("permanent_delete_confirm"))) return;
-    await fetch(`/api/session/${encodeURIComponent(id)}/permanent-delete`, { method: "POST" });
-    location.reload();
+    try {
+      await fetch(`/api/session/${encodeURIComponent(id)}/permanent-delete`, { method: "POST" });
+      queueToast(ft("toast_permanent_deleted"), "success");
+      location.reload();
+    } catch {
+      showToast(ft("toast_error"), "error");
+    }
     return;
   }
 
@@ -239,10 +301,15 @@ document.addEventListener("click", async (e) => {
   }
   if (action === "delete" && !confirm(ft("batch_delete_confirm").replace("{count}", ids.length))) return;
 
-  await fetch("/api/batch", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, ids })
-  });
-  location.reload();
+  try {
+    await fetch("/api/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, ids })
+    });
+    queueToast(ft("toast_batch_done").replace("{count}", ids.length), "success");
+    location.reload();
+  } catch {
+    showToast(ft("toast_error"), "error");
+  }
 });

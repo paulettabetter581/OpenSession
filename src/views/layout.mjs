@@ -25,6 +25,7 @@ export function layout(title, body, page = "home") {
   <main class="content">
     ${body}
   </main>
+  <div id="toast-container"></div>
    <script src="/static/app.js"></script>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
 </body>
