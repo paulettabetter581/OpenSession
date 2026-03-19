@@ -14,9 +14,9 @@ export function layout(title, body, page = "home") {
 </head>
 <body data-page="${page}">
   <nav class="topbar">
-    <a href="/" class="logo">${t("nav.title")}</a>
-    <a href="/stats" class="nav-link">${t("nav.stats")}</a>
-    <a href="/trash" class="nav-link">${t("nav.trash")}</a>
+    <a href="/" class="logo"><span style="color:var(--success-color)">~</span>/${t("nav.title")}</a>
+    <a href="/stats" class="nav-link">$ ${t("nav.stats")}</a>
+    <a href="/trash" class="nav-link">$ ${t("nav.trash")}</a>
     <form class="search-form" action="/search" method="GET">
       <input type="text" name="q" placeholder="${t("nav.search_placeholder")}" class="search-input" id="search-input">
     </form>

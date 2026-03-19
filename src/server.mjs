@@ -386,7 +386,17 @@ export function startServer(config = getConfig()) {
       const metaMap = getAllMeta();
       const excludedIds = getExcludedIds();
       const enrichedSessions = enrichSessionList(sessions, metaMap, excludedIds);
-      send(res, 200, renderSessionsPage({ sessions: enrichedSessions, total, limit, offset, range }));
+      const overviewStats = getStats();
+      const deletedCount = getDeletedIds().length;
+      send(res, 200, renderSessionsPage({
+        sessions: enrichedSessions,
+        total,
+        limit,
+        offset,
+        range,
+        totalMessages: overviewStats.totalMessages,
+        deletedCount
+      }));
       return;
     }
 
