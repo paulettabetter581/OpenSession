@@ -1,6 +1,6 @@
 import { escapeHtml } from "../markdown.mjs";
 import { layout } from "./layout.mjs";
-import { pagination, sessionCard } from "./components.mjs";
+import { sessionCard } from "./components.mjs";
 import { t } from "../i18n.mjs";
 
 export function renderSessionsPage({ sessions = [], total = 0, limit = 30, offset = 0, query = "", note = "", range = "" } = {}) {
@@ -27,7 +27,6 @@ export function renderSessionsPage({ sessions = [], total = 0, limit = 30, offse
   }).join("");
   const filterBar = `<div class="range-filter">${rangeButtons}</div>`;
   
-  const pagerBase = query ? `/search?q=${encodeURIComponent(query)}` : (rangeParam ? `/?range=${rangeParam}` : "/");
   const body = `
     <section class="page-header">
       <div class="page-header-row">
@@ -53,7 +52,7 @@ export function renderSessionsPage({ sessions = [], total = 0, limit = 30, offse
     <section class="session-list" id="session-list">
       ${cards}
     </section>
-    ${pagination(total, limit, offset, pagerBase)}
+    ${total > limit ? `<div id="scroll-sentinel" data-offset="${offset + sessions.length}" data-total="${total}" data-range="${escapeHtml(range)}" data-query="${escapeHtml(query)}"></div>` : ""}
   `;
 
   return layout(query ? t("sessions.search_title").replace("{query}", query) : t("sessions.title"), body, query ? "search" : "home");

@@ -1091,3 +1091,36 @@ pre code.hljs {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+#scroll-sentinel {
+  padding: 24px;
+  text-align: center;
+}
+
+.scroll-loading {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.scroll-loading::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.scroll-done {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 16px 0;
+}
