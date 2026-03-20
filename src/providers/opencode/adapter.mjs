@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { existsSync } from "node:fs";
 import { getConfig } from "../../config.mjs";
+import { icons } from "../../icons.mjs";
 import {
   getDb,
   listSessions,
@@ -31,7 +32,7 @@ function defaultDataPath() {
 const opencode = {
   id: "opencode",
   name: "OpenCode",
-  icon: "🔮",
+  icon: icons.opencode,
 
   detect() {
     const dbPath = getConfig().dbPath || defaultDataPath();

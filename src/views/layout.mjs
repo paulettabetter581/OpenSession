@@ -1,5 +1,6 @@
 import { escapeHtml } from "../markdown.mjs";
 import { t, getLocale } from "../i18n.mjs";
+import { icons } from "../icons.mjs";
 
 export function layout(title, body, page = "home", { provider = null, providers = [] } = {}) {
   const providerPrefix = provider ? `/${provider}` : "";
@@ -31,7 +32,7 @@ export function layout(title, body, page = "home", { provider = null, providers 
 </head>
 <body data-page="${page}" data-provider="${provider || ""}">
   <nav class="topbar">
-    <a href="${providerPrefix || "/"}" class="logo"><span style="color:var(--success-color)">~</span>/OpenSession</a>
+    <a href="${providerPrefix || "/"}" class="logo">${icons.opensession}<span class="logo-text">OpenSession</span></a>
     ${providerTabs}
     <div class="topbar-actions">
       <a href="${providerPrefix}/stats" class="nav-link">${t("nav.stats")}</a>

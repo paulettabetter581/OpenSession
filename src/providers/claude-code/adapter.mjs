@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { getConfig } from "../../config.mjs";
 import { parseTranscript, extractSessionMeta, recordsToMessages } from "./parser.mjs";
+import { icons } from "../../icons.mjs";
 
 function getClaudeDir() {
   return getConfig().claudeDir;
@@ -55,7 +56,7 @@ function discoverSessionFiles() {
 const claudeCode = {
   id: "claude-code",
   name: "Claude Code",
-  icon: "🟠",
+  icon: icons.claude,
 
   detect() {
     const claudeDir = getClaudeDir();

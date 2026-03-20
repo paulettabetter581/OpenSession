@@ -164,15 +164,34 @@ body {
 }
 
 .provider-icon {
-  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+.provider-icon svg {
+  width: 16px;
+  height: 16px;
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--text-primary);
   font-weight: 700;
   text-decoration: none;
   font-size: 16px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.logo svg {
+  width: 22px;
+  height: 22px;
+  color: var(--accent-color);
+}
+
+.logo-text {
+  white-space: nowrap;
 }
 
 .search-form {

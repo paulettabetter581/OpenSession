@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { getConfig } from "../../config.mjs";
 import { parseSession, extractMeta, dataToMessages } from "./parser.mjs";
+import { icons } from "../../icons.mjs";
 
 function getGeminiDir() {
   return getConfig().geminiDir;
@@ -33,7 +34,7 @@ function discoverSessionFiles() {
 const gemini = {
   id: "gemini",
   name: "Gemini CLI",
-  icon: "🔵",
+  icon: icons.gemini,
 
   detect() {
     return existsSync(path.join(getGeminiDir(), "tmp"));

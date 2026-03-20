@@ -2,6 +2,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { getConfig } from "../../config.mjs";
 import { parseSession, extractMeta, recordsToMessages } from "./parser.mjs";
+import { icons } from "../../icons.mjs";
 
 function getCodexDir() {
   return getConfig().codexDir;
@@ -36,7 +37,7 @@ function discoverSessionFiles() {
 const codex = {
   id: "codex",
   name: "Codex CLI",
-  icon: "🟢",
+  icon: icons.codex,
 
   detect() {
     return existsSync(path.join(getCodexDir(), "sessions"));
