@@ -1,5 +1,6 @@
 // src/providers/index.mjs
 import opencode from "./opencode/adapter.mjs";
+import claudeCode from "./claude-code/adapter.mjs";
 
 /** @type {import('./interface.mjs').ProviderAdapter[]} */
 const ALL_PROVIDERS = [];
@@ -39,3 +40,4 @@ export function getAllProviders() {
 
 // --- Provider registration (MUST be after ALL_PROVIDERS declaration) ---
 registerProvider(opencode);
+registerProvider(claudeCode);
