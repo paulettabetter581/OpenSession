@@ -112,38 +112,37 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 56px;
+  height: 48px;
   background-color: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 24px;
   z-index: 100;
+  gap: 4px;
 }
 
-/* Provider Tabs */
-.provider-tabs {
+.topbar-tabs {
   display: flex;
   gap: 2px;
-  padding: 0 24px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  position: fixed;
-  top: 56px;
-  left: 0;
-  right: 0;
-  z-index: 99;
+  margin-left: 8px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .provider-tab {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
+  gap: 5px;
+  padding: 13px 14px;
   color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   border-bottom: 2px solid transparent;
   transition: color 0.2s, border-color 0.2s;
 }
@@ -158,12 +157,7 @@ body {
 }
 
 .provider-icon {
-  font-size: 1rem;
-}
-
-/* Adjust main content when tabs are present */
-body:has(.provider-tabs) .content {
-  padding-top: 112px; /* 56px topbar + 44px tabs + 12px gap */
+  font-size: 0.9rem;
 }
 
 .logo {
@@ -199,7 +193,7 @@ body:has(.provider-tabs) .content {
 .content {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 88px 24px 48px; /* 56px topbar + 32px spacing */
+  padding: 72px 24px 48px;
 }
 
 body::before {

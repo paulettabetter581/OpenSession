@@ -2,19 +2,14 @@ import { escapeHtml } from "../markdown.mjs";
 import { t, getLocale } from "../i18n.mjs";
 
 export function layout(title, body, page = "home", { provider = null, providers = [] } = {}) {
-  const tabBar = providers.length > 1 ? `
-    <div class="provider-tabs">
-      ${providers.map((p) => `
-        <a href="/${p.id}" class="provider-tab ${p.id === provider ? "active" : ""}" data-provider="${p.id}">
-          <span class="provider-icon">${p.icon}</span>
-          <span class="provider-name">${p.name}</span>
-        </a>
-      `).join("")}
-    </div>
-  ` : "";
-
-  // Update nav hrefs to be provider-scoped
   const providerPrefix = provider ? `/${provider}` : "";
+
+  const providerTabs = providers.length > 1 ? providers.map((p) => `
+    <a href="/${p.id}" class="provider-tab ${p.id === provider ? "active" : ""}" data-provider="${p.id}">
+      <span class="provider-icon">${p.icon}</span>
+      <span class="provider-name">${p.name}</span>
+    </a>
+  `).join("") : "";
 
   return `<!DOCTYPE html>
 <html lang="${getLocale() === 'zh' ? 'zh-CN' : 'en'}">
@@ -29,14 +24,16 @@ export function layout(title, body, page = "home", { provider = null, providers 
 <body data-page="${page}" data-provider="${provider || ""}">
   <nav class="topbar">
     <a href="${providerPrefix || "/"}" class="logo"><span style="color:var(--success-color)">~</span>/OpenSession</a>
-    <a href="${providerPrefix}/stats" class="nav-link">$ ${t("nav.stats")}</a>
-    ${provider === "opencode" ? `<a href="${providerPrefix}/trash" class="nav-link">$ ${t("nav.trash")}</a>` : ""}
-    <form class="search-form" action="${providerPrefix}/search" method="GET">
-      <input type="text" name="q" placeholder="${t("nav.search_placeholder")}" class="search-input" id="search-input">
-    </form>
-    <button id="theme-toggle" class="theme-toggle" title="Toggle theme">🌙</button>
+    ${providerTabs ? `<div class="topbar-tabs">${providerTabs}</div>` : ""}
+    <div class="topbar-actions">
+      <a href="${providerPrefix}/stats" class="nav-link">$ ${t("nav.stats")}</a>
+      ${provider === "opencode" ? `<a href="${providerPrefix}/trash" class="nav-link">$ ${t("nav.trash")}</a>` : ""}
+      <form class="search-form" action="${providerPrefix}/search" method="GET">
+        <input type="text" name="q" placeholder="${t("nav.search_placeholder")}" class="search-input" id="search-input">
+      </form>
+      <button id="theme-toggle" class="theme-toggle" title="Toggle theme">🌙</button>
+    </div>
   </nav>
-  ${tabBar}
   <main class="content">
     ${body}
   </main>
