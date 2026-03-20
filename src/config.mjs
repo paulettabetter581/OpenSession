@@ -18,12 +18,37 @@ function defaultMetaDir() {
   return path.join(configHome, "oh-my-opensession");
 }
 
+function defaultClaudeDir() {
+  if (process.platform === "win32") {
+    return path.join(process.env.USERPROFILE || os.homedir(), ".claude");
+  }
+  return path.join(os.homedir(), ".claude");
+}
+
+function defaultCodexDir() {
+  if (process.platform === "win32") {
+    return path.join(process.env.USERPROFILE || os.homedir(), ".codex", "sessions");
+  }
+  return path.join(os.homedir(), ".codex", "sessions");
+}
+
+function defaultGeminiDir() {
+  if (process.platform === "win32") {
+    return path.join(process.env.USERPROFILE || os.homedir(), ".gemini", "tmp");
+  }
+  return path.join(os.homedir(), ".gemini", "tmp");
+}
+
 const defaults = {
   port: 3456,
   dbPath: defaultDbPath(),
   metaDir: defaultMetaDir(),
   lang: "en",
   open: false,
+  claudeDir: defaultClaudeDir(),
+  codexDir: defaultCodexDir(),
+  geminiDir: defaultGeminiDir(),
+  reindex: false,
 };
 
 function detectLang() {
@@ -37,23 +62,35 @@ export function parseArgs(argv = process.argv.slice(2)) {
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--port" && argv[i + 1]) {
       config.port = Number(argv[++i]) || defaults.port;
-    } else if (argv[i] === "--db" && argv[i + 1]) {
+    } else if ((argv[i] === "--opencode-db" || argv[i] === "--db") && argv[i + 1]) {
       config.dbPath = argv[++i];
+    } else if (argv[i] === "--claude-dir" && argv[i + 1]) {
+      config.claudeDir = argv[++i];
+    } else if (argv[i] === "--codex-dir" && argv[i + 1]) {
+      config.codexDir = argv[++i];
+    } else if (argv[i] === "--gemini-dir" && argv[i + 1]) {
+      config.geminiDir = argv[++i];
+    } else if (argv[i] === "--reindex") {
+      config.reindex = true;
     } else if (argv[i] === "--lang" && argv[i + 1]) {
       config.lang = argv[++i] === "zh" ? "zh" : "en";
     } else if (argv[i] === "--open") {
       config.open = true;
     } else if (argv[i] === "--help" || argv[i] === "-h") {
-      console.log(`oh-my-opensession — OpenCode Session Viewer & Manager
+      console.log(`oh-my-opensession — Multi-Provider Session Viewer & Manager
 
 Usage: oh-my-opensession [options]
 
 Options:
-  --port <number>   Server port (default: 3456, env: PORT)
-  --db <path>       Path to opencode.db (env: SESSION_VIEWER_DB_PATH)
-  --lang <en|zh>    UI language (default: auto-detect from LANG)
-  --open            Open browser on start
-  -h, --help        Show this help`);
+  --port <number>       Server port (default: 3456, env: PORT)
+  --opencode-db <path>  Path to opencode.db (alias: --db, env: SESSION_VIEWER_DB_PATH)
+  --claude-dir <path>   Path to Claude CLI data dir (default: ~/.claude)
+  --codex-dir <path>    Path to Codex sessions dir (default: ~/.codex/sessions)
+  --gemini-dir <path>   Path to Gemini data dir (default: ~/.gemini/tmp)
+  --reindex             Force full reindex of all providers on start
+  --lang <en|zh>        UI language (default: auto-detect from LANG)
+  --open                Open browser on start
+  -h, --help            Show this help`);
       process.exit(0);
     }
   }
@@ -62,7 +99,7 @@ Options:
   if (!argv.includes("--port") && process.env.PORT) {
     config.port = Number(process.env.PORT) || defaults.port;
   }
-  if (!argv.includes("--db") && process.env.SESSION_VIEWER_DB_PATH) {
+  if (!argv.includes("--db") && !argv.includes("--opencode-db") && process.env.SESSION_VIEWER_DB_PATH) {
     config.dbPath = process.env.SESSION_VIEWER_DB_PATH;
   }
   if (process.env.OH_MY_OPENSESSION_META_PATH) {
