@@ -92,4 +92,12 @@ export const zh = {
   "js.permanent_delete_confirm": "永久删除后无法恢复，确定？",
   "js.batch_delete_confirm": "确定删除 {count} 个会话？",
   "js.select_first": "请先选择会话",
+
+  // Providers
+  "provider.opencode": "OpenCode",
+  "provider.claude-code": "Claude Code",
+  "provider.codex": "Codex CLI",
+  "provider.gemini": "Gemini CLI",
+  "provider.read_only": "只读模式",
+  "provider.not_detected": "未安装",
 };

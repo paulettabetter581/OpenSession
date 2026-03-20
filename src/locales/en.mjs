@@ -92,4 +92,12 @@ export const en = {
   "js.permanent_delete_confirm": "Permanently delete? This cannot be undone.",
   "js.batch_delete_confirm": "Delete {count} sessions?",
   "js.select_first": "Please select sessions first",
+
+  // Providers
+  "provider.opencode": "OpenCode",
+  "provider.claude-code": "Claude Code",
+  "provider.codex": "Codex CLI",
+  "provider.gemini": "Gemini CLI",
+  "provider.read_only": "Read-only mode",
+  "provider.not_detected": "Not installed",
 };
