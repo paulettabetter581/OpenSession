@@ -156,6 +156,13 @@ body {
   border-bottom-color: var(--accent-color);
 }
 
+.provider-tab.disabled {
+  color: var(--text-muted);
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .provider-icon {
   font-size: 0.9rem;
 }

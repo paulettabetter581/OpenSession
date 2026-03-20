@@ -1,7 +1,7 @@
 export const zh = {
   // Nav & Layout
   "nav.title": "会话浏览器",
-  "nav.stats": "统计",
+  "nav.stats": "Token",
   "nav.trash": "回收站",
   "nav.search_placeholder": "搜索会话... ( / )",
 

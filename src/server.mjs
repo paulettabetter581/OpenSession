@@ -18,7 +18,7 @@ import {
   getDailySessionCounts,
   getSessionsByIds
 } from "./db.mjs";
-import { getAvailableProviders, getProvider } from "./providers/index.mjs";
+import { getAvailableProviders, getAllProviders, getProvider } from "./providers/index.mjs";
 import { getIndexDb, upsertIndex, getIndexedSessions } from "./index-db.mjs";
 import { setLocale, getLocale } from "./i18n.mjs";
 import {
@@ -334,10 +334,12 @@ export async function startServer(config = getConfig()) {
 
     const availableProviders = getAvailableProviders();
     const providerMap = new Map(availableProviders.map((provider) => [provider.id, provider]));
-    const providerInfo = availableProviders.map((provider) => ({
-      id: provider.id,
-      name: provider.name,
-      icon: provider.icon
+    const availableIds = new Set(availableProviders.map((p) => p.id));
+    const providerInfo = getAllProviders().map((p) => ({
+      id: p.id,
+      name: p.name,
+      icon: p.icon,
+      available: availableIds.has(p.id)
     }));
 
     // Extract provider from URL: /:provider/...

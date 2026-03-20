@@ -1,7 +1,7 @@
 export const en = {
   // Nav & Layout
   "nav.title": "Session Viewer",
-  "nav.stats": "Stats",
+  "nav.stats": "Token",
   "nav.trash": "Trash",
   "nav.search_placeholder": "Search sessions... ( / )",
 
