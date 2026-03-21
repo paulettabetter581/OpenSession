@@ -110,7 +110,7 @@ opensession --open  # 自动弹浏览器
 ### 方式三：从源码运行
 
 ```bash
-git clone https://github.com/HeavyBunny19C/oh-my-opensession.git
+git clone https://github.com/HeavyBunny19C/OpenSession.git
 cd oh-my-opensession
 npm start
 ```

@@ -52,7 +52,7 @@ opensession --open  # auto-opens browser
 ### From Source
 
 ```bash
-git clone https://github.com/HeavyBunny19C/oh-my-opensession.git
+git clone https://github.com/HeavyBunny19C/OpenSession.git
 cd oh-my-opensession
 npm start
 ```

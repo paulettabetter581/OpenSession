@@ -29,9 +29,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HeavyBunny19C/oh-my-opensession.git"
+    "url": "git+https://github.com/HeavyBunny19C/OpenSession.git"
   },
-  "homepage": "https://github.com/HeavyBunny19C/oh-my-opensession",
+  "homepage": "https://github.com/HeavyBunny19C/OpenSession",
   "files": [
     "bin/",
     "src/"
