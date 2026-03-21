@@ -1089,7 +1089,7 @@ pre code.hljs {
 }
 
 .two-column.trace-open {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 340px;
 }
 
 .main-content {
@@ -1640,11 +1640,11 @@ pre code.hljs {
 .chain-node {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
+  gap: 4px;
+  padding: 4px 6px;
   border-radius: 4px;
-  font-size: 11px;
-  margin-bottom: 2px;
+  font-size: 10px;
+  margin-bottom: 1px;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -1670,15 +1670,21 @@ pre code.hljs {
 }
 
 .chain-cat {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
-  min-width: 36px;
+  min-width: 30px;
   color: var(--text-secondary);
 }
 
 .chain-label {
   color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.chain-detail {
+  color: var(--text-secondary);
+  font-size: 10px;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;

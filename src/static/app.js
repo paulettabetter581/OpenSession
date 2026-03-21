@@ -586,16 +586,34 @@ function renderTimeline() {
     const dur = Math.max(0, Math.round(Number(span.duration) || 0));
     const icons = { agent: "🤖", skill: "🎯", mcp: "🧠", tool: "🔧", lsp: "📡", reasoning: "💭" };
     const icon = icons[span.category] || "🔧";
-    const label = span.category === "mcp" && span.mcpServer
-      ? `${span.mcpServer}:${(span.name || "").replace(span.mcpServer + "_", "")}`
-      : span.name || span.category;
-    return `<div class="chain-node cat-bg-${cat}${errorCls}" style="margin-left:${indent * 20}px" data-trace-step-index="${span._stepIndex}">
+
+    let label = span.name || span.category;
+    let detail = "";
+    if (span.category === "agent" && span.title) {
+      detail = span.title;
+    } else if (span.category === "skill") {
+      try { const inp = JSON.parse(span.input || "{}"); detail = inp.name || ""; } catch { detail = ""; }
+    } else if (span.category === "mcp") {
+      const method = span.mcpServer ? (span.name || "").replace(span.mcpServer + "_", "") : span.name;
+      label = span.mcpServer || "mcp";
+      detail = method;
+    } else if (span.category === "tool" && span.title) {
+      const parts = span.title.split("/");
+      detail = parts.length > 2 ? parts.slice(-2).join("/") : span.title;
+    } else if (span.category === "lsp") {
+      detail = (span.name || "").replace("lsp_", "");
+    }
+
+    const detailHtml = detail ? `<span class="chain-detail">${escapeHtmlClient(truncateTraceText(detail, 40))}</span>` : "";
+
+    return `<div class="chain-node cat-bg-${cat}${errorCls}" style="margin-left:${indent * 16}px" data-trace-step-index="${span._stepIndex}">
       <span class="chain-dot cat-${cat}"></span>
       <span class="chain-icon">${icon}</span>
       <span class="chain-cat">${cat}</span>
-      <span class="chain-label">${escapeHtmlClient(truncateTraceText(label, 50))}</span>
+      <span class="chain-label">${escapeHtmlClient(label)}</span>
+      ${detailHtml}
       <span class="chain-dur">${dur}ms</span>
-      ${span.status === "error" ? '<span class="chain-status-err">error</span>' : ""}
+      ${span.status === "error" ? '<span class="chain-status-err">err</span>' : ""}
     </div>`;
   };
 
