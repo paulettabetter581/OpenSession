@@ -552,50 +552,72 @@ function renderTimeline() {
     (Array.isArray(step?.spans) ? step.spans : []).map((span) => ({ ...span, _stepIndex: si, _step: step }))
   );
 
-  const meaningful = allSpans.filter((s) => s.category !== "text" && s.category !== "invalid" && s.category !== "reasoning");
-  meaningful.sort((a, b) => (Number(a.timeStart) || 0) - (Number(b.timeStart) || 0));
-
   const catCounts = {};
   allSpans.forEach((s) => { catCounts[s.category] = (catCounts[s.category] || 0) + 1; });
 
-  const getDisplayName = (span) => {
-    if (span.category === "agent") {
-      return span.title || span.name || "task";
+  const agentNameMap = { explore: "Explorer", librarian: "Librarian", oracle: "Oracle", metis: "Metis", momus: "Momus" };
+
+  const getAgentName = (span) => {
+    try {
+      const inp = JSON.parse(span.input || "{}");
+      if (inp.subagent_type && agentNameMap[inp.subagent_type]) return agentNameMap[inp.subagent_type];
+      if (inp.subagent_type) return inp.subagent_type;
+      if (inp.category) return `Junior (${inp.category})`;
+      return "Sisyphus-Junior";
+    } catch { return "Sisyphus-Junior"; }
+  };
+
+  const getSkillName = (span) => {
+    try { const inp = JSON.parse(span.input || "{}"); return inp.name || "skill"; } catch { return "skill"; }
+  };
+
+  const getMcpLabel = (span) => {
+    const method = span.mcpServer ? (span.name || "").replace(span.mcpServer + "_", "") : span.name;
+    return { server: span.mcpServer || "mcp", method };
+  };
+
+  const getToolLabel = (span) => {
+    if (span.title) {
+      const parts = span.title.split("/");
+      return parts.length > 2 ? parts.slice(-2).join("/") : span.title;
     }
-    if (span.category === "skill") {
-      try { const inp = JSON.parse(span.input || "{}"); return inp.name || "skill"; } catch { return "skill"; }
-    }
-    if (span.category === "mcp") {
-      const method = span.mcpServer ? (span.name || "").replace(span.mcpServer + "_", "") : span.name;
-      return `${span.mcpServer || "mcp"}:${method}`;
-    }
-    if (span.category === "tool") {
-      if (span.title) {
-        const parts = span.title.split("/");
-        return `${span.name} ${parts.length > 2 ? parts.slice(-2).join("/") : span.title}`;
-      }
-      return span.name || "tool";
-    }
-    if (span.category === "lsp") {
-      return (span.name || "").replace("lsp_", "lsp:");
-    }
-    return span.name || span.category;
+    return "";
   };
 
   const icons = { agent: "🤖", skill: "🎯", mcp: "🧠", tool: "🔧", lsp: "📡" };
 
-  const renderNode = (span) => {
+  const renderNode = (span, indent = 0) => {
     const cat = escapeHtmlClient(span.category || "tool");
     const errorCls = span.status === "error" ? " chain-error" : "";
     const dur = Math.max(0, Math.round(Number(span.duration) || 0));
     const icon = icons[span.category] || "🔧";
-    const displayName = getDisplayName(span);
 
-    return `<div class="chain-node cat-bg-${cat}${errorCls}" data-trace-step-index="${span._stepIndex}">
+    let nameHtml = "";
+    if (span.category === "agent") {
+      const agentName = getAgentName(span);
+      const desc = span.title || "";
+      nameHtml = `<span class="chain-agent-name">${escapeHtmlClient(agentName)}</span>`;
+      if (desc) nameHtml += `<span class="chain-desc">${escapeHtmlClient(truncateTraceText(desc, 45))}</span>`;
+    } else if (span.category === "skill") {
+      nameHtml = `<span class="chain-name">${escapeHtmlClient(getSkillName(span))}</span>`;
+    } else if (span.category === "mcp") {
+      const m = getMcpLabel(span);
+      nameHtml = `<span class="chain-mcp-name">${escapeHtmlClient(m.server)}</span><span class="chain-desc">${escapeHtmlClient(m.method)}</span>`;
+    } else if (span.category === "tool") {
+      const detail = getToolLabel(span);
+      nameHtml = `<span class="chain-name">${escapeHtmlClient(span.name || "tool")}</span>`;
+      if (detail) nameHtml += `<span class="chain-desc">${escapeHtmlClient(truncateTraceText(detail, 35))}</span>`;
+    } else if (span.category === "lsp") {
+      nameHtml = `<span class="chain-name">${escapeHtmlClient((span.name || "").replace("lsp_", ""))}</span>`;
+    } else {
+      nameHtml = `<span class="chain-name">${escapeHtmlClient(span.name || span.category)}</span>`;
+    }
+
+    return `<div class="chain-node cat-bg-${cat}${errorCls}" style="margin-left:${indent * 18}px" data-trace-step-index="${span._stepIndex}">
       <span class="chain-dot cat-${cat}"></span>
       <span class="chain-icon">${icon}</span>
       <span class="chain-cat">${cat}</span>
-      <span class="chain-name">${escapeHtmlClient(truncateTraceText(displayName, 55))}</span>
+      ${nameHtml}
       <span class="chain-dur">${dur}ms</span>
       ${span.status === "error" ? '<span class="chain-status-err">err</span>' : ""}
     </div>`;
@@ -609,22 +631,48 @@ function renderTimeline() {
     <span class="chain-stat"><span class="chain-dot cat-lsp"></span>LSP ${catCounts.lsp || 0}</span>
   </div>`;
 
-  let currentStepIdx = -1;
-  meaningful.forEach((span) => {
-    if (span._stepIndex !== currentStepIdx) {
-      if (currentStepIdx >= 0) html += `</div>`;
-      currentStepIdx = span._stepIndex;
-      const step = steps[currentStepIdx];
-      const cost = Number(step?.cost);
-      const dur = Math.max(0, Math.round(Number(step?.duration) || 0));
-      html += `<details class="chain-step-group" open>
-        <summary class="chain-step-header" data-trace-step-index="${currentStepIdx}">
-          Step ${currentStepIdx + 1} · ${escapeHtmlClient(step?.model || "unknown")} · ${dur}ms${Number.isFinite(cost) ? ` · $${cost.toFixed(3)}` : ""}
-        </summary>`;
+  steps.forEach((step, stepIndex) => {
+    const spans = (Array.isArray(step?.spans) ? step.spans : [])
+      .map((sp) => ({ ...sp, _stepIndex: stepIndex, _step: step }))
+      .filter((s) => s.category !== "text" && s.category !== "invalid" && s.category !== "reasoning");
+    if (!spans.length) return;
+
+    const cost = Number(step?.cost);
+    const dur = Math.max(0, Math.round(Number(step?.duration) || 0));
+    const agentName = step?.agent ? `${typeof step.agent === "string" ? step.agent : step.agent.name || "Sisyphus"}` : "";
+
+    html += `<details class="chain-step-group" open>
+      <summary class="chain-step-header" data-trace-step-index="${stepIndex}">
+        <span class="step-num">Step ${stepIndex + 1}</span>
+        ${agentName ? `<span class="step-agent">${escapeHtmlClient(agentName)}</span>` : ""}
+        <span class="step-meta">${escapeHtmlClient(step?.model || "")} · ${dur}ms${Number.isFinite(cost) ? ` · $${cost.toFixed(3)}` : ""}</span>
+      </summary>`;
+
+    const agentSpans = spans.filter((s) => s.category === "agent");
+    const otherSpans = spans.filter((s) => s.category !== "agent");
+
+    if (agentSpans.length) {
+      agentSpans.forEach((agent) => {
+        html += renderNode(agent, 0);
+        const sameStepChildren = otherSpans.filter((s) => {
+          const agentTime = Number(agent.timeStart) || 0;
+          const spanTime = Number(s.timeStart) || 0;
+          return spanTime >= agentTime;
+        });
+        const childrenToShow = sameStepChildren.splice(0, Math.min(sameStepChildren.length, 5));
+        if (childrenToShow.length) {
+          html += `<div class="chain-children">`;
+          childrenToShow.forEach((child) => { html += renderNode(child, 0); });
+          html += `</div>`;
+        }
+      });
+      otherSpans.forEach((s) => { html += renderNode(s, 0); });
+    } else {
+      spans.forEach((s) => { html += renderNode(s, 0); });
     }
-    html += renderNode(span);
+
+    html += `</details>`;
   });
-  if (currentStepIdx >= 0) html += `</details>`;
 
   const summary = traceData?.summary || {};
   html += `<div class="chain-footer">${steps.length} steps · ${Number(summary.totalSpans) || 0} spans · $${Number(summary.totalCost)?.toFixed(2) || "0"} · ${(Number(summary.totalTokens) || 0).toLocaleString()} tokens</div>`;

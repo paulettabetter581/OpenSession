@@ -1642,12 +1642,29 @@ pre code.hljs {
 .chain-step-header {
   display: flex;
   align-items: center;
+  gap: 8px;
   font-size: 11px;
   color: var(--text-muted);
   padding: 8px 10px;
   cursor: pointer;
   border-radius: 4px;
   list-style: none;
+}
+
+.step-num {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.step-agent {
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.step-meta {
+  color: var(--text-muted);
+  margin-left: auto;
+  font-size: 10px;
 }
 
 .chain-step-header::-webkit-details-marker {
@@ -1717,6 +1734,26 @@ pre code.hljs {
 .chain-name {
   color: var(--text-primary);
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chain-agent-name {
+  color: #ec4899;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.chain-mcp-name {
+  color: #10b981;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.chain-desc {
+  color: var(--text-secondary);
+  font-size: 11px;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
