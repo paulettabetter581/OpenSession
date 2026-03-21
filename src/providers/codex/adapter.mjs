@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, lstatSync } from "node:fs";
+import { execSync } from "node:child_process";
 import path from "node:path";
 import { getConfig } from "../../config.mjs";
 import { parseSession, extractMeta, recordsToMessages } from "./parser.mjs";
@@ -48,6 +49,7 @@ const codex = {
   icon: icons.codex,
 
   detect() {
+    try { execSync("which codex", { stdio: "ignore" }); } catch { return false; }
     return existsSync(path.join(getCodexDir(), "sessions"));
   },
 

@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, lstatSync } from "node:fs";
+import { execSync } from "node:child_process";
 import path from "node:path";
 import { getConfig } from "../../config.mjs";
 import { parseTranscript, extractSessionMeta, recordsToMessages } from "./parser.mjs";
@@ -6,6 +7,15 @@ import { icons } from "../../icons.mjs";
 
 function getClaudeDir() {
   return getConfig().claudeDir;
+}
+
+function isCliInstalled() {
+  try {
+    execSync("which claude", { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -61,6 +71,7 @@ const claudeCode = {
   icon: icons.claude,
 
   detect() {
+    if (!isCliInstalled()) return false;
     const claudeDir = getClaudeDir();
     const transcripts = path.join(claudeDir, "transcripts");
     const projects = path.join(claudeDir, "projects");
@@ -80,7 +91,6 @@ const claudeCode = {
         const meta = extractSessionMeta(records, sessionId);
         yield meta;
       } catch {
-        // Skip corrupt files
       }
     }
   },
