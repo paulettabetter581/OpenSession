@@ -689,9 +689,9 @@ document.addEventListener("click", (e) => {
 });
 
 document.addEventListener("click", async (e) => {
-  const toolCall = e.target.closest(".tool-call[data-part-id]");
-  if (!toolCall) return;
-  const partId = toolCall.dataset.partId || "";
+  const traceBtn = e.target.closest(".trace-btn[data-part-id]");
+  if (!traceBtn) return;
+  const partId = traceBtn.dataset.partId || "";
   if (!partId) return;
   await openTracePanel(partId);
 });

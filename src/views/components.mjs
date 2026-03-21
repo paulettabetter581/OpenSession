@@ -155,6 +155,7 @@ export function toolCallBlock(tool, input, output, status, duration, partId) {
     <summary>
       <span class="tool-name">${summary}</span>
       <span class="tool-status">${safeStatus}</span>
+      <button type="button" class="trace-btn" data-part-id="${escapeHtml(partId)}" title="View trace">⚡</button>
       ${safeDuration}
     </summary>
     <div class="tool-panels">
