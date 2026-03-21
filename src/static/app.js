@@ -559,70 +559,116 @@ function renderTimeline() {
     return;
   }
 
-  const content = steps
-    .map((step, stepIndex) => {
-      const spans = Array.isArray(step?.spans) ? step.spans : [];
-      const stepDuration = getTraceStepDuration(step);
-      const stepStart = Number(step?.timeStart);
-      const cost = Number(step?.cost);
-      const tokenTotal = Number(step?.tokens?.total) || 0;
-      const activeCls = stepIndex === currentStepIndex ? " active" : "";
-      const spanRows = spans
-        .map((span) => {
-          const category = String(span?.category || "text");
-          const spanStart = Number(span?.timeStart);
-          const spanDurationRaw = Number(span?.duration);
-          const spanDuration = Number.isFinite(spanDurationRaw) && spanDurationRaw >= 0
-            ? spanDurationRaw
-            : (() => {
-                const spanEnd = Number(span?.timeEnd);
-                if (Number.isFinite(spanStart) && Number.isFinite(spanEnd) && spanEnd >= spanStart) return spanEnd - spanStart;
-                return 0;
-              })();
-          const leftPct = stepDuration > 0 && Number.isFinite(spanStart) && Number.isFinite(stepStart)
-            ? Math.max(0, Math.min(100, ((spanStart - stepStart) / stepDuration) * 100))
-            : 0;
-          const widthPct = stepDuration > 0
-            ? Math.max(Math.min((spanDuration / stepDuration) * 100, 100), 2)
-            : 2;
-          const errorCls = span?.status === "error" ? " status-error" : "";
-          return `
-            <div class="trace-span-row">
-              <div class="trace-span-label" title="${escapeHtmlClient(span?.name || "")}">${escapeHtmlClient(truncateTraceText(span?.name || "", 60))}</div>
-              <div class="trace-span-track">
-                <div class="trace-span-bar cat-${escapeHtmlClient(category)}${errorCls}" style="left:${leftPct.toFixed(2)}%;width:${widthPct.toFixed(2)}%;"></div>
-              </div>
-              <div class="trace-span-time">${Math.max(0, Math.round(spanDuration))}ms</div>
-            </div>
-          `;
-        })
-        .join("");
+  const allSpans = steps.flatMap((step, si) =>
+    (Array.isArray(step?.spans) ? step.spans : []).map((span) => ({ ...span, _stepIndex: si, _step: step }))
+  );
 
-      return `
-        <section class="trace-step-block">
-          <button class="trace-step-header${activeCls}" type="button" data-trace-step-index="${stepIndex}">
-            Step ${stepIndex + 1} · ${escapeHtmlClient(step?.model || "unknown")} · ${Math.max(0, Math.round(stepDuration))}ms · $${Number.isFinite(cost) ? cost.toFixed(3) : "0.000"} · ${tokenTotal.toLocaleString()} tokens
-          </button>
-          <div class="trace-step-spans">${spanRows}</div>
-        </section>
-      `;
-    })
-    .join("");
+  const agentSpans = allSpans.filter((s) => s.category === "agent");
+  const nonAgentSpans = allSpans.filter((s) => s.category !== "agent" && s.category !== "text" && s.category !== "invalid");
+
+  const agentChains = agentSpans.map((agent) => {
+    const stepSpans = allSpans.filter((s) => s._stepIndex === agent._stepIndex && s.id !== agent.id);
+    const children = stepSpans.filter((s) => s.category !== "text" && s.category !== "invalid" && s.category !== "reasoning");
+    return { agent, children };
+  });
+
+  const agentStepIndices = new Set(agentSpans.map((s) => s._stepIndex));
+  const independentSpans = nonAgentSpans.filter((s) => !agentStepIndices.has(s._stepIndex));
+
+  const mcpGroups = {};
+  const toolCounts = {};
+  independentSpans.forEach((s) => {
+    if (s.category === "mcp") {
+      const server = s.mcpServer || "unknown";
+      if (!mcpGroups[server]) mcpGroups[server] = [];
+      mcpGroups[server].push(s);
+    } else if (s.category === "tool") {
+      const name = s.name || "unknown";
+      toolCounts[name] = (toolCounts[name] || 0) + 1;
+    }
+  });
+
+  const catCounts = {};
+  allSpans.forEach((s) => { catCounts[s.category] = (catCounts[s.category] || 0) + 1; });
+
+  const renderChainNode = (span, indent = 0) => {
+    const cat = escapeHtmlClient(span.category || "tool");
+    const errorCls = span.status === "error" ? " chain-error" : "";
+    const dur = Math.max(0, Math.round(Number(span.duration) || 0));
+    const icons = { agent: "🤖", skill: "🎯", mcp: "🧠", tool: "🔧", lsp: "📡", reasoning: "💭" };
+    const icon = icons[span.category] || "🔧";
+    const label = span.category === "mcp" && span.mcpServer
+      ? `${span.mcpServer}:${(span.name || "").replace(span.mcpServer + "_", "")}`
+      : span.name || span.category;
+    return `<div class="chain-node cat-bg-${cat}${errorCls}" style="margin-left:${indent * 20}px" data-trace-step-index="${span._stepIndex}">
+      <span class="chain-dot cat-${cat}"></span>
+      <span class="chain-icon">${icon}</span>
+      <span class="chain-cat">${cat}</span>
+      <span class="chain-label">${escapeHtmlClient(truncateTraceText(label, 50))}</span>
+      <span class="chain-dur">${dur}ms</span>
+      ${span.status === "error" ? '<span class="chain-status-err">error</span>' : ""}
+    </div>`;
+  };
+
+  let html = `<div class="chain-summary">
+    <span class="chain-stat"><span class="chain-dot cat-agent"></span>Agent ${catCounts.agent || 0}</span>
+    <span class="chain-stat"><span class="chain-dot cat-skill"></span>Skill ${catCounts.skill || 0}</span>
+    <span class="chain-stat"><span class="chain-dot cat-mcp"></span>MCP ${catCounts.mcp || 0}</span>
+    <span class="chain-stat"><span class="chain-dot cat-tool"></span>Tool ${catCounts.tool || 0}</span>
+    <span class="chain-stat"><span class="chain-dot cat-lsp"></span>LSP ${catCounts.lsp || 0}</span>
+  </div>`;
+
+  if (agentChains.length) {
+    html += `<div class="chain-section-header">Agent Chains · ${agentChains.length} delegations</div>`;
+    agentChains.forEach((chain) => {
+      html += `<div class="chain-root">`;
+      html += renderChainNode(chain.agent, 0);
+      if (chain.children.length) {
+        html += `<div class="chain-children">`;
+        chain.children.forEach((child) => { html += renderChainNode(child, 1); });
+        html += `</div>`;
+      }
+      html += `</div>`;
+    });
+  }
+
+  const skillSpans = allSpans.filter((s) => s.category === "skill" && !agentStepIndices.has(s._stepIndex));
+  if (skillSpans.length) {
+    html += `<div class="chain-section-header">Standalone Skills · ${skillSpans.length}</div>`;
+    skillSpans.forEach((s) => { html += renderChainNode(s, 0); });
+  }
+
+  if (Object.keys(mcpGroups).length) {
+    const totalMcp = Object.values(mcpGroups).reduce((a, b) => a + b.length, 0);
+    html += `<div class="chain-section-header">MCP Servers · ${totalMcp} calls</div>`;
+    Object.entries(mcpGroups).sort((a, b) => b[1].length - a[1].length).forEach(([server, spans]) => {
+      html += `<details class="chain-mcp-group"><summary class="chain-mcp-header"><span class="chain-dot cat-mcp"></span> 🧠 ${escapeHtmlClient(server)} <span class="chain-count">${spans.length}</span></summary>`;
+      spans.slice(0, 10).forEach((s) => { html += renderChainNode(s, 1); });
+      if (spans.length > 10) html += `<div class="chain-more">${spans.length - 10} more…</div>`;
+      html += `</details>`;
+    });
+  }
+
+  if (Object.keys(toolCounts).length) {
+    const totalTools = Object.values(toolCounts).reduce((a, b) => a + b, 0);
+    html += `<div class="chain-section-header">Tools · ${totalTools} calls</div>`;
+    html += `<div class="chain-tool-chips">`;
+    Object.entries(toolCounts).sort((a, b) => b[1] - a[1]).forEach(([name, count]) => {
+      html += `<span class="chain-tool-chip">${escapeHtmlClient(name)} ×${count}</span>`;
+    });
+    html += `</div>`;
+  }
+
+  const lspSpans = allSpans.filter((s) => s.category === "lsp" && !agentStepIndices.has(s._stepIndex));
+  if (lspSpans.length) {
+    html += `<div class="chain-section-header">LSP · ${lspSpans.length} calls</div>`;
+    lspSpans.forEach((s) => { html += renderChainNode(s, 0); });
+  }
 
   const summary = traceData?.summary || {};
-  const summaryHtml = `
-    <div class="trace-summary-row">
-      <div class="trace-legend">
-        <span class="trace-legend-item"><i class="trace-span-bar cat-reasoning"></i>Reasoning</span>
-        <span class="trace-legend-item"><i class="trace-span-bar cat-tool"></i>Tool</span>
-        <span class="trace-legend-item"><i class="trace-span-bar cat-mcp"></i>MCP</span>
-        <span class="trace-legend-item"><i class="trace-span-bar cat-agent"></i>Agent</span>
-      </div>
-      <div class="trace-summary-totals">${Number(summary.totalSteps) || steps.length} steps · ${Number(summary.totalSpans) || 0} spans · ${Math.max(0, Math.round(Number(summary.totalDuration) || 0))}ms</div>
-    </div>
-  `;
+  html += `<div class="chain-footer">${steps.length} steps · ${Number(summary.totalSpans) || 0} spans · $${Number(summary.totalCost)?.toFixed(2) || "0"} · ${(Number(summary.totalTokens) || 0).toLocaleString()} tokens</div>`;
 
-  timelineEl.innerHTML = `${content}${summaryHtml}`;
+  timelineEl.innerHTML = html;
 }
 
 function renderGraph(stepIndex) {
