@@ -177,6 +177,36 @@ KEY FACTS:
 
 ---
 
+## 🗺️ Roadmap
+
+> Ordered by priority. PRs and Issues welcome!
+
+**v1.1 — UX Polish**
+- [ ] Session export (Markdown / JSON)
+- [ ] Session diff (compare message flows side by side)
+- [ ] System-aware dark/light theme toggle
+- [ ] Session tags & custom groups
+
+**v1.2 — More Providers**
+- [ ] Cursor session support
+- [ ] Windsurf session support
+- [ ] Aider session support
+- [ ] Custom provider plugin system (adapter + parser template)
+
+**v1.3 — Data Insights**
+- [ ] Token usage trends & cost estimation
+- [ ] Model distribution heatmap
+- [ ] Per-project aggregated stats
+- [ ] Session knowledge graph (via parentId linking)
+
+**v2.0 — Collaboration & Cloud**
+- [ ] Multi-user / team session sharing
+- [ ] Session comments & annotations
+- [ ] Remote deployment (one-click Docker)
+- [ ] REST API for third-party integrations
+
+---
+
 ## 💖 Donate
 
 If this project made you smile, consider buying me a Mixue ice cream 🍦
