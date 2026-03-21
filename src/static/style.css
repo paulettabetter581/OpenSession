@@ -28,6 +28,20 @@
   
   /* Transitions */
   --transition-fast: 0.2s ease;
+
+  --trace-reasoning: #8b5cf6;
+  --trace-skill: #f59e0b;
+  --trace-mcp: #10b981;
+  --trace-tool: #06b6d4;
+  --trace-lsp: #3b82f6;
+  --trace-agent: #ec4899;
+  --trace-text: #64748b;
+  --trace-invalid: #475569;
+  --trace-error: #ef4444;
+  --z-topbar: 100;
+  --z-menu: 99;
+  --z-trace: 98;
+  --z-toast: 200;
 }
 
 [data-theme="dark"] {
@@ -137,31 +151,37 @@ body {
 
 .topbar {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: 48px;
   background-color: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   padding: 0 24px;
-  z-index: 100;
-  gap: 4px;
+  z-index: var(--z-topbar);
+  gap: 8px;
 }
 
 .topbar-tabs {
   display: flex;
   gap: 2px;
-  flex: 1;
-  justify-content: center;
+  justify-self: center;
+}
+
+@media (max-width: 768px) {
+  .topbar-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .topbar-tabs::-webkit-scrollbar { display: none; }
 }
 
 .topbar-actions {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-left: auto;
 }
 
 .provider-tab {
@@ -1544,7 +1564,7 @@ pre code.hljs {
 }
 
 .trace-step-cost {
-  color: #f59e0b;
+  color: var(--trace-skill);
 }
 
 .trace-span-row {
@@ -1585,15 +1605,15 @@ pre code.hljs {
   min-width: 4px;
 }
 
-.trace-span-bar.cat-reasoning { background: #8b5cf6; opacity: 0.7; }
-.trace-span-bar.cat-skill { background: #f59e0b; color: #000; }
-.trace-span-bar.cat-mcp { background: #10b981; color: #000; }
-.trace-span-bar.cat-tool { background: #06b6d4; color: #000; }
-.trace-span-bar.cat-lsp { background: #3b82f6; }
-.trace-span-bar.cat-agent { background: #ec4899; }
-.trace-span-bar.cat-text { background: #64748b; }
-.trace-span-bar.cat-invalid { background: #475569; opacity: 0.5; }
-.trace-span-bar.status-error { border: 2px solid #ef4444; }
+.trace-span-bar.cat-reasoning { background: var(--trace-reasoning); opacity: 0.7; }
+.trace-span-bar.cat-skill { background: var(--trace-skill); color: #000; }
+.trace-span-bar.cat-mcp { background: var(--trace-mcp); color: #000; }
+.trace-span-bar.cat-tool { background: var(--trace-tool); color: #000; }
+.trace-span-bar.cat-lsp { background: var(--trace-lsp); }
+.trace-span-bar.cat-agent { background: var(--trace-agent); }
+.trace-span-bar.cat-text { background: var(--trace-text); }
+.trace-span-bar.cat-invalid { background: var(--trace-invalid); opacity: 0.5; }
+.trace-span-bar.status-error { border: 2px solid var(--trace-error); }
 
 .trace-span-time {
   font-size: 9px;
@@ -1647,12 +1667,12 @@ pre code.hljs {
   flex-shrink: 0;
 }
 
-.chain-dot.cat-agent { background: #ec4899; }
-.chain-dot.cat-skill { background: #f59e0b; }
-.chain-dot.cat-mcp { background: #10b981; }
-.chain-dot.cat-tool { background: #06b6d4; }
-.chain-dot.cat-lsp { background: #3b82f6; }
-.chain-dot.cat-reasoning { background: #8b5cf6; }
+.chain-dot.cat-agent { background: var(--trace-agent); }
+.chain-dot.cat-skill { background: var(--trace-skill); }
+.chain-dot.cat-mcp { background: var(--trace-mcp); }
+.chain-dot.cat-tool { background: var(--trace-tool); }
+.chain-dot.cat-lsp { background: var(--trace-lsp); }
+.chain-dot.cat-reasoning { background: var(--trace-reasoning); }
 
 .chain-section-header {
   font-size: 12px;
@@ -1743,7 +1763,7 @@ pre code.hljs {
 .cat-bg-reasoning { background: rgba(139, 92, 246, 0.08); }
 
 .chain-node.chain-error {
-  border: 1px solid #ef4444;
+  border: 1px solid var(--trace-error);
 }
 
 .chain-icon {
@@ -1769,13 +1789,13 @@ pre code.hljs {
 }
 
 .chain-agent-name {
-  color: #ec4899;
+  color: var(--trace-agent);
   font-weight: 600;
   flex-shrink: 0;
 }
 
 .chain-mcp-name {
-  color: #10b981;
+  color: var(--trace-mcp);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -1805,7 +1825,7 @@ pre code.hljs {
 }
 
 .chain-status-err {
-  color: #ef4444;
+  color: var(--trace-error);
   font-size: 10px;
   font-weight: 600;
 }
@@ -1861,7 +1881,7 @@ pre code.hljs {
   padding: 3px 10px;
   border-radius: 4px;
   background: rgba(6, 182, 212, 0.15);
-  color: #06b6d4;
+  color: var(--trace-tool);
 }
 
 .chain-footer {
@@ -1882,6 +1902,6 @@ pre code.hljs {
     top: 48px;
     right: 0;
     width: 100%;
-    z-index: 98;
+    z-index: var(--z-trace);
   }
 }
