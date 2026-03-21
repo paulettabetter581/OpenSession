@@ -297,31 +297,27 @@ KEY FACTS:
 
 ## 🗺️ Roadmap
 
-> 按优先级排列，欢迎 PR 和 Issue
+> v1.0 已完成多 Provider 架构，以下是已规划但尚未实现的特性。欢迎 PR 和 Issue！
 
-**v1.1 — 体验优化**
-- [ ] 会话导出（Markdown / JSON）
-- [ ] 会话对比（diff 两个会话的消息流）
-- [ ] 深色/浅色主题跟随系统
-- [ ] 会话标签 & 自定义分组
+**跨 Provider 能力增强**
+- [ ] 跨 Provider 统一搜索（当前各 tab 独立搜索）
+- [ ] 跨 Provider 聚合统计面板
+- [ ] 非 OpenCode Provider 的收藏 / 重命名 / 删除 / 导出（当前仅 OpenCode 支持）
 
-**v1.2 — 更多 Provider**
-- [ ] Cursor 会话支持
-- [ ] Windsurf 会话支持
-- [ ] Aider 会话支持
-- [ ] 自定义 Provider 插件机制（adapter + parser 模板）
+**数据 & 实时性**
+- [ ] 实时文件监听（当前仅启动时索引 + 手动刷新）
+- [ ] 会话知识图谱（基于 parentId 的父子任务关联，架构已预埋）
+- [ ] 会话导出 / 跨平台迁移（adapter.exportSession() 接口已定义）
 
-**v1.3 — 数据洞察**
-- [ ] Token 消耗趋势图 & 成本估算
-- [ ] 模型使用分布热力图
-- [ ] 项目维度聚合统计
-- [ ] 会话知识图谱（基于 parentId 关联）
+**插件 & 扩展**
+- [ ] 运行时动态 Provider 插件加载（当前为编译时注册）
+- [ ] UI 内 Provider 设置面板（当前仅 CLI 参数 / 环境变量配置）
+- [ ] 更多 Provider：Cursor / Windsurf / Aider
 
-**v2.0 — 协作 & 云端**
-- [ ] 多用户 / 团队共享会话
-- [ ] 会话评论 & 标注
-- [ ] 远程部署模式（Docker 一键启动）
-- [ ] REST API 供第三方集成
+**架构预埋（已在 v1.0 中完成）**
+- ✅ `RawSession.parentId` — 会话知识图谱字段
+- ✅ `adapter.exportSession()` — 导出接口存根
+- ✅ `session_index` 复合主键 `(provider, session_id)` — 跨 Provider 数据隔离
 
 ---
 

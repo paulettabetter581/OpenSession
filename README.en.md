@@ -179,31 +179,27 @@ KEY FACTS:
 
 ## 🗺️ Roadmap
 
-> Ordered by priority. PRs and Issues welcome!
+> v1.0 ships with multi-provider architecture. Below are planned but not yet implemented features. PRs and Issues welcome!
 
-**v1.1 — UX Polish**
-- [ ] Session export (Markdown / JSON)
-- [ ] Session diff (compare message flows side by side)
-- [ ] System-aware dark/light theme toggle
-- [ ] Session tags & custom groups
+**Cross-Provider Enhancements**
+- [ ] Unified search across all providers (currently per-tab only)
+- [ ] Aggregated stats dashboard across providers
+- [ ] Star / rename / delete / export for non-OpenCode providers (currently OpenCode only)
 
-**v1.2 — More Providers**
-- [ ] Cursor session support
-- [ ] Windsurf session support
-- [ ] Aider session support
-- [ ] Custom provider plugin system (adapter + parser template)
+**Data & Real-time**
+- [ ] Real-time file watching (currently reindex on launch + manual refresh)
+- [ ] Session knowledge graph (parent-child task linking via parentId, architecture pre-seeded)
+- [ ] Session export / cross-platform migration (adapter.exportSession() interface defined)
 
-**v1.3 — Data Insights**
-- [ ] Token usage trends & cost estimation
-- [ ] Model distribution heatmap
-- [ ] Per-project aggregated stats
-- [ ] Session knowledge graph (via parentId linking)
+**Plugins & Extensibility**
+- [ ] Runtime dynamic provider plugin loading (currently compile-time registered)
+- [ ] In-UI provider settings panel (currently CLI flags / env vars only)
+- [ ] More providers: Cursor / Windsurf / Aider
 
-**v2.0 — Collaboration & Cloud**
-- [ ] Multi-user / team session sharing
-- [ ] Session comments & annotations
-- [ ] Remote deployment (one-click Docker)
-- [ ] REST API for third-party integrations
+**Architecture Pre-seeded in v1.0**
+- ✅ `RawSession.parentId` — knowledge graph field
+- ✅ `adapter.exportSession()` — export interface stub
+- ✅ `session_index` composite PK `(provider, session_id)` — cross-provider data isolation
 
 ---
 
