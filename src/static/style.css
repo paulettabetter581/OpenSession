@@ -1089,7 +1089,7 @@ pre code.hljs {
 }
 
 .two-column.trace-open {
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 500px;
 }
 
 .main-content {
