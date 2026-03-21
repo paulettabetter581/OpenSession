@@ -424,11 +424,17 @@ body::before {
   border-radius: 12px;
   box-shadow: var(--shadow-sm);
   transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  border: 1px solid var(--border-color);
+  position: relative;
 }
 
 .session-card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+}
+
+.session-card:focus-within .card-actions {
+  opacity: 1;
 }
 
 .session-card-link {
@@ -449,6 +455,10 @@ body::before {
   font-size: 15px;
   font-weight: 500;
   color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .session-card-time {
