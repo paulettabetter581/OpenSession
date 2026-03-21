@@ -85,6 +85,22 @@
 </details>
 
 <details>
+<summary><strong>🔮 Trace 可视化 — AI 的思考链路，一目了然</strong></summary>
+<br/>
+<p align="center">
+  <img src="./docs/preview-trace.png" alt="Trace Visualization" width="720" />
+</p>
+<p>Session 详情页右侧自动展开调用链路树，按时间顺序展示：</p>
+<ul>
+  <li>🤖 <strong>Agent</strong> — Sisyphus / Momus / Explorer / Librarian 等具名 Agent 委派</li>
+  <li>🎯 <strong>Skill</strong> — writing-plans / brainstorming / TDD 等技能调用</li>
+  <li>🧠 <strong>MCP</strong> — nocturne-memory / openviking / context7 等 MCP Server 交互</li>
+  <li>🔧 <strong>Tool</strong> — read / write / edit / bash / grep 等内置工具</li>
+  <li>📡 <strong>LSP</strong> — diagnostics / goto_definition 等语言服务操作</li>
+</ul>
+</details>
+
+<details>
 <summary><strong>🗂️ 批量管理 — 断舍离，从会话开始</strong></summary>
 <br/>
 <p align="center">
@@ -162,6 +178,7 @@ rd /s /q "%APPDATA%\oh-my-opensession"
 | 🗑️ | **软删除** | 手滑删错？回收站救你 |
 | 📤 | **导出** | Markdown / JSON 一键导出，写博客素材有了 |
 | 📊 | **Token 统计** | 消耗趋势、模型分布，钱花哪了一目了然 |
+| 🔮 | **Trace 可视化** | Agent/Skill/MCP/Tool/LSP 调用链路树，AI 的思考过程一览无余 |
 | 🗂️ | **批量操作** | 多选收藏/删除，效率拉满 |
 | 🌐 | **中英双语** | `--lang zh` 切中文，`--lang en` 切英文 |
 | 🔒 | **只读安全** | 绝不碰你的原始数据，放心用 |
@@ -315,10 +332,11 @@ KEY FACTS:
 - [ ] `RawSession.parentId` 已预埋，OpenCode 的 `parent_id` 和 Claude Code 的 `parentSessionId` 在 v1 已采集
 
 **🔮 Agent / Skill / MCP / Tool / LSP 可视化**
-- [ ] 会话内节点图：展示 Agent 调用链、Skill 触发、MCP Server 交互、Tool 执行、LSP 操作的完整思考链路
-- [ ] 节点级耗时分析：每个 tool call / agent delegation 的执行时间和 token 消耗
-- [ ] 思考链路回放：按时间线还原 AI 的决策过程（thinking → tool → result → next step）
-- [ ] `Message.metadata` 已预埋，各 Provider 的 agent name / skill name / MCP server / delegation chain 在 v1 已保留原始数据
+- [x] 会话内调用链路树：展示 Agent 委派、Skill 触发、MCP Server 交互、Tool 执行、LSP 操作的完整思考链路
+- [x] Agent 具名化：Sisyphus / Momus / Explorer / Librarian / Junior 等
+- [x] 按时间顺序排列，步骤可折叠，层级缩进（Agent → 子调用）
+- [ ] 节点级耗时分析优化：瀑布时间线视图
+- [ ] 思考链路回放：按时间线还原 AI 的决策过程
 
 **🔌 跨 Provider 能力增强**
 - [ ] 跨 Provider 统一搜索（当前各 tab 独立搜索）
@@ -337,6 +355,7 @@ KEY FACTS:
 **架构预埋（已在 v1.0 中完成）**
 - ✅ `RawSession.parentId` — 知识图谱父子关联字段
 - ✅ `Message.metadata` — Agent/Skill/MCP/Tool/LSP 原始数据保留
+- ✅ `adapter.getTrace()` — OpenCode Trace 数据提取（v1.1 已实现）
 - ✅ `adapter.exportSession()` — 跨平台迁移导出接口存根
 - ✅ `session_index` 复合主键 `(provider, session_id)` — 跨 Provider 数据隔离
 

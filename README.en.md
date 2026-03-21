@@ -109,6 +109,7 @@ npm uninstall -g opensession
 | 📤 | **Export** | JSON / Markdown / Plain text |
 | 🗑️ | **Soft delete** | Recoverable trash bin (OpenCode) |
 | 📊 | **Token stats** | Daily token usage charts |
+| 🔮 | **Trace visualization** | Agent/Skill/MCP/Tool/LSP call chain tree — see how AI thinks |
 | 🌐 | **i18n** | English & Chinese |
 | 🚀 | **Zero dependencies** | Pure Node.js, no npm install needed |
 
@@ -214,10 +215,11 @@ KEY FACTS:
 - [ ] `RawSession.parentId` pre-seeded — OpenCode's `parent_id` and Claude Code's `parentSessionId` already collected in v1
 
 **🔮 Agent / Skill / MCP / Tool / LSP Visualization**
-- [ ] In-session node graph: full thinking chain of Agent calls, Skill triggers, MCP Server interactions, Tool executions, LSP operations
-- [ ] Per-node timing analysis: execution time and token cost for each tool call / agent delegation
-- [ ] Thinking chain replay: reconstruct AI decision process on a timeline (thinking → tool → result → next step)
-- [ ] `Message.metadata` pre-seeded — agent name / skill name / MCP server / delegation chain raw data preserved per provider in v1
+- [x] In-session call chain tree: Agent delegations, Skill triggers, MCP Server interactions, Tool executions, LSP operations
+- [x] Named agents: Sisyphus / Momus / Explorer / Librarian / Junior
+- [x] Chronological ordering, collapsible steps, hierarchical indent (Agent → children)
+- [ ] Per-node timing waterfall view
+- [ ] Thinking chain replay on timeline
 
 **🔌 Cross-Provider Enhancements**
 - [ ] Unified search across all providers (currently per-tab only)
