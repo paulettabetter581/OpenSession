@@ -116,13 +116,7 @@ ${actions}
       <h3 id="trace-title">Trace</h3>
       <button type="button" class="trace-panel-close">&times;</button>
     </div>
-    <div class="trace-panel-tabs">
-      <button type="button" class="trace-tab active" data-tab="trace-timeline">🔗 Chain</button>
-      <button type="button" class="trace-tab" data-tab="trace-graph">🔮 Graph</button>
-    </div>
     <div id="trace-timeline" class="trace-tab-content active"></div>
-    <div id="trace-graph" class="trace-tab-content"></div>
-    <div id="trace-node-detail" class="trace-node-detail"></div>
   </aside>
 </div>
   `;

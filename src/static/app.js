@@ -451,7 +451,6 @@ if (scrollSentinel && sessionList && "IntersectionObserver" in window) {
 }
 
 let traceData = null;
-let cyInstance = null;
 let currentStepIndex = 0;
 
 function truncateTraceText(value, maxLength = 220) {
@@ -488,14 +487,12 @@ function switchStep(stepIndex) {
   if (!steps.length) {
     currentStepIndex = 0;
     renderTimeline();
-    renderGraph(0);
     updateTraceTitle();
     return;
   }
   const safeIndex = Math.max(0, Math.min(Number(stepIndex) || 0, steps.length - 1));
   currentStepIndex = safeIndex;
   renderTimeline();
-  renderGraph(currentStepIndex);
   updateTraceTitle();
 }
 
@@ -521,7 +518,6 @@ async function openTracePanel(partId) {
     currentStepIndex = matchedIndex >= 0 ? matchedIndex : 0;
 
     renderTimeline();
-    renderGraph(currentStepIndex);
     panelEl.classList.add("open");
     layoutEl.classList.add("trace-open");
     updateTraceTitle();
@@ -529,7 +525,6 @@ async function openTracePanel(partId) {
     traceData = { steps: [], summary: null };
     currentStepIndex = 0;
     renderTimeline();
-    renderGraph(0);
     panelEl.classList.add("open");
     layoutEl.classList.add("trace-open");
     updateTraceTitle();
@@ -539,14 +534,8 @@ async function openTracePanel(partId) {
 function closeTracePanel() {
   const layoutEl = document.querySelector(".two-column");
   const panelEl = document.getElementById("trace-panel");
-  const detailEl = document.getElementById("trace-node-detail");
   panelEl?.classList.remove("open");
   layoutEl?.classList.remove("trace-open");
-  if (cyInstance) {
-    cyInstance.destroy();
-    cyInstance = null;
-  }
-  if (detailEl) detailEl.classList.add("hidden");
 }
 
 function renderTimeline() {
@@ -671,173 +660,10 @@ function renderTimeline() {
   timelineEl.innerHTML = html;
 }
 
-function renderGraph(stepIndex) {
-  const graphEl = document.getElementById("trace-graph");
-  const detailEl = document.getElementById("trace-node-detail");
-  if (!graphEl) return;
-  if (cyInstance) {
-    cyInstance.destroy();
-    cyInstance = null;
-  }
-  if (detailEl) detailEl.classList.add("hidden");
-
-  const steps = Array.isArray(traceData?.steps) ? traceData.steps : [];
-  const step = steps[stepIndex];
-  const spans = Array.isArray(step?.spans) ? step.spans : [];
-
-  if (!step || !spans.length) {
-    graphEl.innerHTML = '<div class="trace-empty">No trace data available</div>';
-    return;
-  }
-  if (typeof window.cytoscape !== "function") {
-    graphEl.innerHTML = '<div class="trace-empty">No trace data</div>';
-    return;
-  }
-
-  graphEl.innerHTML = "";
-
-  const colorMap = {
-    reasoning: "#8b5cf6",
-    skill: "#f59e0b",
-    mcp: "#10b981",
-    tool: "#06b6d4",
-    lsp: "#3b82f6",
-    agent: "#ec4899",
-    text: "#64748b",
-    invalid: "#475569",
-    start: "#4ade80",
-    end: "#f1f5f9"
-  };
-
-  const elements = [{ data: { id: "start", label: "▶", type: "start", color: colorMap.start, error: 0 } }];
-  spans.forEach((span) => {
-    const type = String(span?.category || "text");
-    const isError = span?.status === "error";
-    elements.push({
-      data: {
-        id: String(span?.id || `span-${Math.random().toString(36).slice(2, 8)}`),
-        label: String(span?.name || "span"),
-        type,
-        duration: Math.max(0, Number(span?.duration) || 0),
-        status: String(span?.status || "unknown"),
-        input: span?.input,
-        output: span?.output,
-        color: colorMap[type] || colorMap.invalid,
-        error: isError ? 1 : 0
-      }
-    });
-  });
-  elements.push({ data: { id: "end", label: "■", type: "end", color: colorMap.end, error: 0 } });
-
-  const chain = ["start", ...spans.map((span) => String(span?.id || "")), "end"].filter(Boolean);
-  for (let i = 0; i < chain.length - 1; i += 1) {
-    elements.push({ data: { id: `edge-${i}-${chain[i]}-${chain[i + 1]}`, source: chain[i], target: chain[i + 1] } });
-  }
-
-  cyInstance = window.cytoscape({
-    container: graphEl,
-    elements,
-    style: [
-      {
-        selector: "node",
-        style: {
-          "background-color": "data(color)",
-          label: "data(label)",
-          color: "#e2e8f0",
-          "font-size": 10,
-          "text-wrap": "wrap",
-          "text-max-width": 140,
-          "text-valign": "center",
-          "text-halign": "center",
-          shape: "round-rectangle",
-          width: "label",
-          height: 34,
-          padding: "8px",
-          "border-width": "mapData(error, 0, 1, 0, 2)",
-          "border-color": "#ef4444"
-        }
-      },
-      {
-        selector: 'node[type = "start"], node[type = "end"]',
-        style: {
-          shape: "ellipse",
-          width: 28,
-          height: 28,
-          color: "#0f172a",
-          "font-size": 14,
-          "font-weight": 700,
-          padding: 0
-        }
-      },
-      {
-        selector: "edge",
-        style: {
-          width: 1.5,
-          "line-color": "#64748b",
-          "target-arrow-color": "#64748b",
-          "target-arrow-shape": "triangle",
-          "curve-style": "bezier"
-        }
-      }
-    ],
-    layout: {
-      name: "breadthfirst",
-      directed: true,
-      spacingFactor: 1.2,
-      padding: 20
-    }
-  });
-
-  cyInstance.on("tap", "node", (event) => {
-    const node = event.target;
-    const data = node?.data?.() || {};
-    if (!detailEl) return;
-    detailEl.innerHTML = `
-      <div><strong>${escapeHtmlClient(data.label || "")}</strong></div>
-      <div>Category: ${escapeHtmlClient(data.type || "")}</div>
-      <div>Duration: ${Math.max(0, Math.round(Number(data.duration) || 0))}ms</div>
-      <div>Status: ${escapeHtmlClient(data.status || "unknown")}</div>
-      <div>Input: ${escapeHtmlClient(truncateTraceText(data.input, 180) || "-")}</div>
-      <div>Output: ${escapeHtmlClient(truncateTraceText(data.output, 180) || "-")}</div>
-    `;
-    detailEl.classList.remove("hidden");
-  });
-
-  cyInstance.on("tap", (event) => {
-    if (event.target === cyInstance && detailEl) {
-      detailEl.classList.add("hidden");
-    }
-  });
-}
-
 document.addEventListener("click", (e) => {
   const stepHeader = e.target.closest("[data-trace-step-index]");
   if (!stepHeader) return;
   switchStep(Number(stepHeader.dataset.traceStepIndex) || 0);
-});
-
-document.addEventListener("click", (e) => {
-  const tabBtn = e.target.closest(".trace-tab");
-  if (!tabBtn) return;
-  const panel = tabBtn.closest("#trace-panel") || document;
-  const targetId = tabBtn.dataset.tab || "";
-  if (!targetId) return;
-
-  panel.querySelectorAll?.(".trace-tab").forEach((el) => {
-    el.classList.remove("active");
-  });
-  panel.querySelectorAll?.(".trace-tab-content").forEach((el) => {
-    el.classList.remove("active");
-  });
-  tabBtn.classList.add("active");
-  const target = document.getElementById(targetId);
-  if (target) target.classList.add("active");
-  if (targetId === "trace-graph") {
-    if (traceData) renderGraph(currentStepIndex);
-    setTimeout(() => {
-      cyInstance?.resize();
-    }, 50);
-  }
 });
 
 document.addEventListener("click", async (e) => {
