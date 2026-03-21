@@ -361,20 +361,6 @@ KEY FACTS:
 
 ---
 
-## 💖 捐赠
-
-如果这个项目让你会心一笑，欢迎请我喝杯蜜雪冰城 🍦
-
-<p align="center">
-  <img src="./docs/wechat-pay.jpeg" alt="微信支付" width="250" />
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="./docs/alipay.jpeg" alt="支付宝" width="250" />
-</p>
-<p align="center">
-  <sub>微信支付 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 支付宝</sub>
-</p>
-
----
 
 ## 📄 许可证
 
