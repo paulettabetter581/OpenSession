@@ -208,7 +208,7 @@ const opencode = {
             currentStep = startStep(msg, msgData, {}, {});
           }
           currentStep.cost = toNumber(pd.cost);
-          currentStep.tokens = toNumber(pd.tokens);
+          currentStep.tokens = pd.tokens;
           currentStep.reason = pd.reason || null;
           currentStep.timeEnd = toNumber(pd.time?.end) || toNumber(part.time?.end) || currentStep.timeEnd;
           currentStep.duration = Math.max(0, toNumber(currentStep.timeEnd) - toNumber(currentStep.timeStart));
@@ -280,7 +280,7 @@ const opencode = {
          acc.totalSpans += step.spans.length;
          acc.totalDuration += toNumber(step.duration);
          acc.totalCost += toNumber(step.cost);
-         acc.totalTokens += toNumber(step.tokens);
+          acc.totalTokens += toNumber(typeof step.tokens === 'object' && step.tokens !== null ? step.tokens.total : step.tokens);
          return acc;
        },
        { totalSteps: 0, totalSpans: 0, totalDuration: 0, totalCost: 0, totalTokens: 0 }
