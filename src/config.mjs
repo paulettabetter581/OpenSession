@@ -1,13 +1,36 @@
 import os from "node:os";
 import path from "node:path";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, existsSync } from "node:fs";
+
+/**
+ * Try multiple candidate paths, return the first that exists on disk.
+ * Falls back to fallback (or second candidate) if none exist.
+ * @param {string[]} candidates
+ * @param {string} [fallback]
+ * @returns {string}
+ */
+function probePaths(candidates, fallback) {
+  for (const p of candidates) {
+    if (p && existsSync(p)) return p;
+  }
+  return fallback || candidates[1] || candidates[0];
+}
 
 function defaultDbPath() {
+  const home = os.homedir();
+  const xdgData = process.env.XDG_DATA_HOME || path.join(home, ".local", "share");
+  const fallback = path.join(xdgData, "opencode", "opencode.db");
+  const candidates = [
+    process.env.SESSION_VIEWER_DB_PATH || process.env.OPENCODE_DB_PATH,
+    fallback,
+  ];
   if (process.platform === "win32") {
-    return path.join(process.env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local"), "opencode", "opencode.db");
+    candidates.push(path.join(process.env.LOCALAPPDATA || path.join(home, "AppData", "Local"), "opencode", "opencode.db"));
   }
-  const dataHome = process.env.XDG_DATA_HOME || path.join(os.homedir(), ".local", "share");
-  return path.join(dataHome, "opencode", "opencode.db");
+  if (process.platform === "darwin") {
+    candidates.push(path.join(home, "Library", "Application Support", "opencode", "opencode.db"));
+  }
+  return probePaths(candidates.filter(Boolean), fallback);
 }
 
 function defaultMetaDir() {
@@ -19,24 +42,42 @@ function defaultMetaDir() {
 }
 
 function defaultClaudeDir() {
+  const home = os.homedir();
+  const fallback = path.join(home, ".claude");
+  const candidates = [process.env.CLAUDE_CONFIG_DIR, fallback];
   if (process.platform === "win32") {
-    return path.join(process.env.USERPROFILE || os.homedir(), ".claude");
+    candidates.push(path.join(process.env.APPDATA || path.join(home, "AppData", "Roaming"), "claude"));
   }
-  return path.join(os.homedir(), ".claude");
+  if (process.platform === "darwin") {
+    candidates.push(path.join(home, "Library", "Application Support", "claude"));
+  }
+  return probePaths(candidates.filter(Boolean), fallback);
 }
 
 function defaultCodexDir() {
+  const home = os.homedir();
+  const fallback = path.join(home, ".codex");
+  const candidates = [process.env.CODEX_HOME, fallback];
   if (process.platform === "win32") {
-    return path.join(process.env.USERPROFILE || os.homedir(), ".codex");
+    candidates.push(path.join(process.env.APPDATA || path.join(home, "AppData", "Roaming"), "codex"));
   }
-  return path.join(os.homedir(), ".codex");
+  if (process.platform === "darwin") {
+    candidates.push(path.join(home, "Library", "Application Support", "codex"));
+  }
+  return probePaths(candidates.filter(Boolean), fallback);
 }
 
 function defaultGeminiDir() {
+  const home = os.homedir();
+  const fallback = path.join(home, ".gemini");
+  const candidates = [process.env.GEMINI_HOME, fallback];
   if (process.platform === "win32") {
-    return path.join(process.env.USERPROFILE || os.homedir(), ".gemini");
+    candidates.push(path.join(process.env.APPDATA || path.join(home, "AppData", "Roaming"), "gemini"));
   }
-  return path.join(os.homedir(), ".gemini");
+  if (process.platform === "darwin") {
+    candidates.push(path.join(home, "Library", "Application Support", "gemini"));
+  }
+  return probePaths(candidates.filter(Boolean), fallback);
 }
 
 const defaults = {
