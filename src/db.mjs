@@ -131,6 +131,7 @@ export function searchMessages(query, limit = 20) {
     JOIN message ON message.id = part.message_id
     JOIN session ON session.id = part.session_id
     WHERE session.time_archived IS NULL
+      AND session.parent_id IS NULL
       AND COALESCE(json_extract(part.data, '$.text'), '') LIKE ?
     ORDER BY session.time_updated DESC,
              COALESCE(CAST(json_extract(message.data, '$.time.created') AS INTEGER), 0) DESC,
@@ -163,6 +164,7 @@ export function getStats() {
     SELECT COUNT(*) AS count
     FROM session
     WHERE time_archived IS NULL
+      AND parent_id IS NULL
   `).get()?.count ?? 0;
 
   const totalMessages = db.prepare(`
@@ -170,6 +172,7 @@ export function getStats() {
     FROM message
     JOIN session ON session.id = message.session_id
     WHERE session.time_archived IS NULL
+      AND session.parent_id IS NULL
   `).get()?.count ?? 0;
 
   const modelDistribution = db.prepare(`
@@ -186,6 +189,7 @@ export function getStats() {
     FROM message
     JOIN session ON session.id = message.session_id
     WHERE session.time_archived IS NULL
+      AND session.parent_id IS NULL
     GROUP BY model
     ORDER BY count DESC, model ASC
   `).all().map((row) => ({
@@ -204,15 +208,18 @@ export function getTokenStats(days = 30) {
   const d = getDb();
   const cutoff = Date.now() - days * 86400000;
   return d.prepare(`
-    SELECT date(json_extract(data, '$.time.created') / 1000, 'unixepoch') as day,
-           SUM(json_extract(data, '$.tokens.total')) as total_tokens,
-           SUM(json_extract(data, '$.tokens.input')) as input_tokens,
-           SUM(json_extract(data, '$.tokens.output')) as output_tokens,
+    SELECT date(json_extract(message.data, '$.time.created') / 1000, 'unixepoch') as day,
+           SUM(json_extract(message.data, '$.tokens.total')) as total_tokens,
+           SUM(json_extract(message.data, '$.tokens.input')) as input_tokens,
+           SUM(json_extract(message.data, '$.tokens.output')) as output_tokens,
            COUNT(*) as message_count
     FROM message
-    WHERE json_extract(data, '$.role') = 'assistant'
-      AND json_extract(data, '$.time.created') > ?
-      AND json_extract(data, '$.tokens.total') > 0
+    JOIN session ON session.id = message.session_id
+    WHERE json_extract(message.data, '$.role') = 'assistant'
+      AND json_extract(message.data, '$.time.created') > ?
+      AND json_extract(message.data, '$.tokens.total') > 0
+      AND session.time_archived IS NULL
+      AND session.parent_id IS NULL
     GROUP BY day ORDER BY day ASC
   `).all(cutoff);
 }
@@ -220,13 +227,16 @@ export function getTokenStats(days = 30) {
 export function getModelDistribution() {
   const d = getDb();
   return d.prepare(`
-    SELECT json_extract(data, '$.modelID') as model,
-           json_extract(data, '$.providerID') as provider,
+    SELECT json_extract(message.data, '$.modelID') as model,
+           json_extract(message.data, '$.providerID') as provider,
            COUNT(*) as count,
-           SUM(json_extract(data, '$.tokens.total')) as total_tokens
+           SUM(json_extract(message.data, '$.tokens.total')) as total_tokens
     FROM message
-    WHERE json_extract(data, '$.role') = 'assistant'
-      AND json_extract(data, '$.modelID') IS NOT NULL
+    JOIN session ON session.id = message.session_id
+    WHERE json_extract(message.data, '$.role') = 'assistant'
+      AND json_extract(message.data, '$.modelID') IS NOT NULL
+      AND session.time_archived IS NULL
+      AND session.parent_id IS NULL
     GROUP BY model, provider
     ORDER BY count DESC
   `).all();
